@@ -25,6 +25,25 @@ const ReadComic = () => {
         nextChapter: null,
     })
 
+    const saveHistory = (comicData) => {
+        try {
+            const history = JSON.parse(localStorage.getItem('comicHistory')) || {}
+            
+            history[slug] = {
+                title: comicData.comicTitle,
+                image: comicDetailState?.comic?.image,
+                lastChapter: comicData.chapterNumber,
+                lastChapterLink: comicData.chapterLink,
+                lastChapterSlug: chapterSlug,
+                readDate: new Date().toISOString(),
+                comicDataForDetail: comicDetailState,
+            }
+            localStorage.setItem('comicHistory', JSON.stringify(history))
+        } catch (e) {
+            console.error("Error saving history to local storage", e)
+        }
+    }
+
     useEffect(() => {
         const fetchChapterPages = async () => {
             if (!chapterLink) {
@@ -39,43 +58,48 @@ const ReadComic = () => {
             window.scrollTo(0, 0) 
 
             try {
-            const response = await axios.get(`https://www.sankavollerei.com/comic/chapter/${chapterLink}`)
-            
-          //  console.log("Fetched chapter pages:", response.data)
-
-            const chapters = response.data.chapters || []
-            const images = response.data.images || []
-            const navData = response.data.navigation || { previousChapter: null, nextChapter: null }
-
-            setPages(images)
-            setCurrentChapters(chapters)
-            setNavigation(navData)
+                const response = await axios.get(`https://www.sankavollerei.com/comic/chapter/${chapterLink}`)
                 
-            if (chapters.length > 0) {
-                const chapterIndex = chapters.findIndex(
-                    ch => String(ch.chapter) === String(chapterNumber)
-                )
+                const chapters = response.data.chapters || []
+                const images = response.data.images || []
+                const navData = response.data.navigation || { previousChapter: null, nextChapter: null }
 
-                setCurrentChapterIndex(chapterIndex !== -1 ? chapterIndex : 0)
-            } else {
-                setCurrentChapterIndex(0)
+                setPages(images)
+                setCurrentChapters(chapters)
+                setNavigation(navData)
+                
+                if (chapters.length > 0) {
+                    const chapterIndex = chapters.findIndex(
+                        ch => String(ch.chapter) === String(chapterNumber)
+                    )
+
+                    setCurrentChapterIndex(chapterIndex !== -1 ? chapterIndex : 0)
+                } else {
+                    setCurrentChapterIndex(0)
+                }
+                
+                setLoading(false)
+
+                saveHistory({ 
+                    chapterLink, 
+                    comicTitle, 
+                    chapterNumber,
+                })
+
+            } catch (err) {
+                setError(err)
+                setLoading(false)
+                setPages([
+                    'https://picsum.photos/800/1200?random=1',
+                    'https://picsum.photos/800/1200?random=2',
+                    'https://picsum.photos/800/1200?random=3',
+                    'https://picsum.photos/800/1200?random=4'
+                ])
             }
-                
-            setLoading(false)
-        } catch (err) {
-            setError(err)
-            setLoading(false)
-            setPages([
-                'https://picsum.photos/800/1200?random=1',
-                'https://picsum.photos/800/1200?random=2',
-                'https://picsum.photos/800/1200?random=3',
-                'https://picsum.photos/800/1200?random=4'
-            ])
         }
-    }
 
-    fetchChapterPages()
-}, [chapterLink])
+        fetchChapterPages()
+    }, [chapterLink, chapterNumber])
 
     useEffect(() => {
         const handleScroll = () => {
@@ -135,10 +159,9 @@ const ReadComic = () => {
         )
     }
 
-    // Error state
     if (error) {
         return (
-            <div className="text-center text-red-500 p-4">
+            <div className="bg-[#121212] min-h-screen text-center text-red-400 p-4 pt-10">
                 <h2>Terjadi Kesalahan</h2>
                 <p>{error.message}</p>
             </div>
@@ -150,7 +173,6 @@ const ReadComic = () => {
 
     return (
         <div className="bg-[#121212] min-h-screen">
-            {/* Header Fixed */}
             <div className="fixed top-0 left-0 right-0 bg-[#1e1e1e] shadow-lg py-4 px-6 z-20 flex justify-between items-center border-b border-gray-700">
                 <button 
                     onClick={handleBack}
@@ -164,7 +186,6 @@ const ReadComic = () => {
                 <div className="w-10"></div>
             </div>
 
-            {/* Progress Bar */}
             <div 
                 className="fixed top-16 left-0 right-0 h-1 bg-gray-700 z-20"
                 style={{ zIndex: 30 }}
@@ -175,9 +196,7 @@ const ReadComic = () => {
                 />
             </div>
 
-
-            {/* Konten Komik */}
-            <div className="container mx-auto pt-20 pb-20"> 
+            <div className="pt-20 pb-20"> 
                 {pages.map((page, index) => (
                     <img 
                         key={index} 
@@ -189,10 +208,8 @@ const ReadComic = () => {
                 ))}
             </div>
 
-            {/* Footer */}
             <div className="fixed bottom-0 left-0 right-0 bg-[#1e1e1e] shadow-lg py-2 px-2 z-20 flex justify-between items-center border-t border-gray-700">
             
-            {/* Previous Chapter Button */}
                 <button 
                     onClick={handlePrevChapter}
                     disabled={!hasPrev}
@@ -209,7 +226,6 @@ const ReadComic = () => {
                     Akhir Chapter
                 </span>
 
-            {/* Next Chapter Button */}
                 <button 
                     onClick={handleNextChapter}
                     disabled={!hasNext}
