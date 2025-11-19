@@ -27,6 +27,8 @@ Host your own instance of <a href="https://juju-manhwa-2-0.vercel.app">juju-otak
 
 Source code: **[https://github.com/Rhakelino/juju-manhwa-2.0](https://github.com/Rhakelino/juju-manhwa-2.0)**
 
+Recode By: **[https://github.com/idlanyor/manhwa](https://github.com/idlanyor/manhwa)**
+
 Api Comic: **[https://www.sankavollerei.com/comic](https://www.sankavollerei.com/comic)**
 
 ---
