@@ -7,7 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft, faChevronLeft, faChevronRight, faHome, faBookOpen,
   faExpand, faPlay, faClock, faFire, faStar, faNewspaper,
-  faChartLine, faSun, faMoon
+  faChartLine, faSun, faMoon, faHistory, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
 // Performance monitoring (only in development)
@@ -20,7 +20,7 @@ if (import.meta.env.DEV) {
 library.add(
   faArrowLeft, faChevronLeft, faChevronRight, faHome, faBookOpen,
   faExpand, faPlay, faClock, faFire, faStar, faNewspaper,
-  faChartLine, faSun, faMoon
+  faChartLine, faSun, faMoon, faHistory, faTrash
 );
 
 createRoot(document.getElementById('root')).render(

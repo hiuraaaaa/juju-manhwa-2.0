@@ -10,6 +10,7 @@ import DetailComic from './Pages/page-detail'
 import ReadComic from './Pages/read-comic'
 import StatisticsPage from './Pages/StatisticsPage'
 import usePageTracking from './hooks/usePageTracking'
+import HistoryPage from './Pages/HistoryPage'
 
 function AppContent() {
   // Track page views
@@ -23,6 +24,7 @@ function AppContent() {
         <Route path="/terbaru" element={<TerbaruPage />} />
         <Route path="/trending" element={<TrendingPage />} />
         <Route path="/pustaka" element={<PustakaPage />} />
+        <Route path="/history" element={<HistoryPage />} />
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/detail-comic/:slug" element={<DetailComic />} />
         <Route path="/read-comic/:slug/:chapterSlug" element={<ReadComic />} />

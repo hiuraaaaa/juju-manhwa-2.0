@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHome, faNewspaper, faFire, faBookOpen, faChartLine } from '@fortawesome/free-solid-svg-icons'
+import { faHome, faNewspaper, faFire, faBookOpen, faChartLine, faHistory } from '@fortawesome/free-solid-svg-icons'
 import ThemeToggle from './ThemeToggle'
 
 const Navbar = () => {
@@ -14,6 +14,7 @@ const Navbar = () => {
         { name: 'Trending', path: '/trending', icon: faFire },
         { name: 'Pustaka', path: '/pustaka', icon: faBookOpen },
         { name: 'Statistics', path: '/statistics', icon: faChartLine },
+        { name: 'History', path: '/history', icon: faHistory },
     ]
 
     const isActive = (path) => {
