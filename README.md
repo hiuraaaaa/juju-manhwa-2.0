@@ -60,7 +60,7 @@ Untuk aplikasi production, disarankan menggunakan TypeScript dengan type-aware l
 
 ## 🤝 Contributing
 
-Kontribusi, issues, dan feature requests sangat diterima!
+Open Kontribusi, issues, dan feature requests!
 
 ## 👨‍💻 Credits
 
