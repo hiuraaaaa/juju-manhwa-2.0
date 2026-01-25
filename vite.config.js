@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react-swc'
 export default defineConfig({
   plugins: [react()],
 
+  // Base public path (important for deployment)
+  base: '/',
+
   build: {
     // Optimize chunks for better performance
     rollupOptions: {
@@ -46,7 +49,7 @@ export default defineConfig({
     host: true,
   },
 
-  // Preview configuration
+  // Preview configuration (tambahkan historyApiFallback)
   preview: {
     port: 8080,
     host: true,
