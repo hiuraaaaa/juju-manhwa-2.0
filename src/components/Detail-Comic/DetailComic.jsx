@@ -3,7 +3,7 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome, faPlay, faBookOpen, faClock, faFire, faStar } from '@fortawesome/free-solid-svg-icons'
-import SkeletonLoader from '../components/SkeletonLoader'
+import SkeletonLoader from '../SkeletonLoader'
 
 const DetailComic = () => {
     const navigate = useNavigate()
@@ -12,7 +12,7 @@ const DetailComic = () => {
     const locationState = location.state || {}
     
     const [comic, setComic] = useState(locationState.comic || null)
-    const [processedLink, setProcessedLink] = useState(locationState.processedLink || slug) // Gunakan slug sebagai fallback
+    const [processedLink, setProcessedLink] = useState(locationState.processedLink || slug)
     const [comicDetail, setComicDetail] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -22,7 +22,6 @@ const DetailComic = () => {
     useEffect(() => {
         const fetchComicDetail = async () => {
             try {
-                // Gunakan processedLink dari state, atau slug dari URL sebagai fallback
                 const linkToFetch = processedLink || slug
                 const cleanProcessedLink = linkToFetch?.startsWith('/') 
                     ? linkToFetch.substring(1) 
@@ -40,12 +39,12 @@ const DetailComic = () => {
 
                 setComicDetail(response.data)
                 
-                // Jika comic belum ada (dari refresh), set dari response
+                // Set comic data dari response jika belum ada
                 if (!comic && response.data.title) {
                     setComic({
                         title: response.data.title || 'Unknown Title',
                         image: response.data.image || response.data.thumbnail || 'https://via.placeholder.com/300x450?text=No+Image',
-                        chapter: response.data.latest_chapter || response.data.chapter || '-',
+                        chapter: response.data.latest_chapter || response.data.chapters?.[0]?.chapter || '-',
                         source: response.data.source || response.data.type || '-',
                         link: linkToFetch,
                     })
@@ -171,7 +170,14 @@ const DetailComic = () => {
         })
     }
 
-    const isLatestChapter = history?.lastChapter === comic?.chapter
+    const displayComic = comic || {
+        title: comicDetail?.title || 'Unknown Title',
+        image: comicDetail?.image || comicDetail?.thumbnail || 'https://via.placeholder.com/300x450?text=No+Image',
+        chapter: comicDetail?.latest_chapter || comicDetail?.chapters?.[0]?.chapter || '-',
+        source: comicDetail?.source || comicDetail?.type || '-',
+    }
+
+    const isLatestChapter = history?.lastChapter === displayComic?.chapter
 
     if (loading) {
         return (
@@ -209,10 +215,10 @@ const DetailComic = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <h2 className="text-xl font-bold text-red-400 mb-2">Terjadi Kesalahan</h2>
-                        <p className="text-red-300">{error}</p>
+                        <p className="text-red-300 mb-4">{error}</p>
                         <button
                             onClick={() => navigate('/')}
-                            className="mt-6 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all"
+                            className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all"
                         >
                             Kembali ke Home
                         </button>
@@ -227,10 +233,10 @@ const DetailComic = () => {
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen transition-colors">
                 <div className="flex justify-center items-center min-h-screen p-4">
                     <div className="text-center">
-                        <p className="text-gray-600 dark:text-gray-400 text-xl">Komik tidak ditemukan</p>
+                        <p className="text-gray-600 dark:text-gray-400 text-xl mb-4">Komik tidak ditemukan</p>
                         <button
                             onClick={() => navigate('/')}
-                            className="mt-6 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all"
+                            className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all"
                         >
                             Kembali ke Home
                         </button>
@@ -240,17 +246,8 @@ const DetailComic = () => {
         )
     }
 
-    // Gunakan data dari comic atau comicDetail
-    const displayComic = comic || {
-        title: comicDetail?.title || 'Unknown Title',
-        image: comicDetail?.image || comicDetail?.thumbnail || 'https://via.placeholder.com/300x450?text=No+Image',
-        chapter: comicDetail?.latest_chapter || comicDetail?.chapter || '-',
-        source: comicDetail?.source || comicDetail?.type || '-',
-    }
-
     return (
         <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors py-8">
-            {/* Background decorative elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
@@ -258,7 +255,6 @@ const DetailComic = () => {
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row gap-6">
-                    {/* Main Content */}
                     <div className="lg:w-2/3 space-y-6">
                         {/* Hero Banner */}
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -266,7 +262,13 @@ const DetailComic = () => {
                                 <img
                                     src={displayComic.image}
                                     alt={displayComic.title}
+                                    width="1200"
+                                    height="500"
+                                    loading="eager"
                                     className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/1200x500?text=No+Image'
+                                    }}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30"></div>
                                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
@@ -352,28 +354,34 @@ const DetailComic = () => {
                                 <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
                                 <h3 className="text-2xl font-bold">Daftar Chapter</h3>
                             </div>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                {comicDetail?.chapters?.map((chapter, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleReadComic(chapter)}
-                                        className={`group relative p-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 ${
-                                            String(chapter.chapter) === String(history?.lastChapter)
-                                                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg shadow-yellow-500/30 scale-105'
-                                                : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 hover:scale-105 shadow-lg hover:shadow-indigo-500/30'
-                                        }`}
-                                    >
-                                        {String(chapter.chapter) === String(history?.lastChapter) && (
-                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                                        )}
-                                        {chapter.chapter}
-                                    </button>
-                                ))}
-                            </div>
+                            {comicDetail?.chapters && comicDetail.chapters.length > 0 ? (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                    {comicDetail.chapters.map((chapter, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleReadComic(chapter)}
+                                            className={`group relative p-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 ${
+                                                String(chapter.chapter) === String(history?.lastChapter)
+                                                    ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg shadow-yellow-500/30 scale-105'
+                                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 hover:scale-105 shadow-lg hover:shadow-indigo-500/30'
+                                            }`}
+                                        >
+                                            {String(chapter.chapter) === String(history?.lastChapter) && (
+                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                                            )}
+                                            {chapter.chapter}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-600 dark:text-gray-400 text-center py-8">
+                                    Belum ada chapter tersedia
+                                </p>
+                            )}
                         </div>
                     </div>
 
-                    {/* Recommendations Sidebar */}
+                    {/* Recommendations */}
                     {recommendations.length > 0 && (
                         <div className="lg:w-1/3">
                             <div className="sticky top-20">
@@ -394,6 +402,9 @@ const DetailComic = () => {
                                                         <img
                                                             src={item.image}
                                                             alt={item.title}
+                                                            width="96"
+                                                            height="128"
+                                                            loading="lazy"
                                                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                             onError={(e) => {
                                                                 e.target.src = 'https://via.placeholder.com/300x450?text=Rekomendasi'
