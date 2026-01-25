@@ -43,15 +43,19 @@ export default defineConfig({
     },
   },
 
-  // Server configuration
+  // Server configuration untuk development
   server: {
     port: 5173,
     host: true,
+    // PENTING: Tambahkan ini untuk fix 404 di development
+    historyApiFallback: true,
   },
 
-  // Preview configuration (tambahkan historyApiFallback)
+  // Preview configuration untuk production preview
   preview: {
     port: 8080,
     host: true,
+    // PENTING: Tambahkan ini untuk fix 404 di preview
+    historyApiFallback: true,
   },
 })
