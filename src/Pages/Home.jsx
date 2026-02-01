@@ -61,9 +61,9 @@ const Home = () => {
       
       <div className="bg-white dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
         
-        {/* Hero Banner - 16:9 Carousel */}
+        {/* Hero Banner - 16:9 Carousel with Container */}
         {featuredComics.length > 0 && (
-          <div className="border-b-2 border-gray-800 dark:border-gray-700">
+          <div className="pt-6 pb-4 px-4">
             <HeroBanner comics={featuredComics} />
           </div>
         )}
