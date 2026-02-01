@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHome, faPlay, faBookOpen, faClock, faFire, faStar } from '@fortawesome/free-solid-svg-icons'
+import { faHome, faPlay, faBookOpen, faClock, faStar } from '@fortawesome/free-solid-svg-icons'
 import SkeletonLoader from '../SkeletonLoader'
 
 const DetailComic = () => {
@@ -27,8 +27,6 @@ const DetailComic = () => {
                     ? linkToFetch.substring(1) 
                     : linkToFetch
 
-                console.log('Fetching comic with link:', cleanProcessedLink)
-
                 const response = await axios.get(
                     `https://www.sankavollerei.com/comic/comic/${cleanProcessedLink}`
                 )
@@ -39,7 +37,6 @@ const DetailComic = () => {
 
                 setComicDetail(response.data)
                 
-                // Set comic data dari response jika belum ada
                 if (!comic && response.data.title) {
                     setComic({
                         title: response.data.title || 'Unknown Title',
@@ -52,7 +49,6 @@ const DetailComic = () => {
                 
                 setLoading(false)
             } catch (err) {
-                console.error("Error fetching comic detail:", err)
                 setError(err.response?.data?.message || err.message || 'Terjadi kesalahan saat mengambil detail komik')
                 setLoading(false)
             }
@@ -67,11 +63,7 @@ const DetailComic = () => {
                 const response = await axios.get('https://www.sankavollerei.com/comic/recommendations')
                 
                 const processedRecommendations = response.data.recommendations.map(item => {
-                    const itemSlug = item.title
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/^-+|-+$/g, '')
-                    
+                    const itemSlug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
                     const link = item.link.replace('/manga/', '').replace('/detail-komik/', '')
                     
                     return {
@@ -80,15 +72,12 @@ const DetailComic = () => {
                         processedLink: link,
                         source: item.reason || '-',
                         popularity: item.recommendation_score ? item.recommendation_score.toFixed(2) : '-',
-                        image: item.image.includes('lazy.jpg') 
-                            ? 'https://via.placeholder.com/300x450?text=Recomendasi' 
-                            : item.image,
+                        image: item.image.includes('lazy.jpg') ? 'https://via.placeholder.com/300x450?text=Recomendasi' : item.image,
                     }
                 })
                 
                 const filteredRecommendations = processedRecommendations.filter(item =>
-                    !item.title.toLowerCase().includes('apk') &&
-                    !item.chapter.toLowerCase().includes('download')
+                    !item.title.toLowerCase().includes('apk') && !item.chapter.toLowerCase().includes('download')
                 )
 
                 setRecommendations(filteredRecommendations.filter(r => r.slug !== slug).slice(0, 8))
@@ -108,20 +97,16 @@ const DetailComic = () => {
                     setHistory(historyData[slug])
                 }
             } catch (e) {
-                console.error("Error loading history from local storage", e)
+                console.error("Error loading history", e)
             }
         }
         loadHistory()
     }, [slug])
 
     const handleReadComic = (chapterData = null) => {
-        let chapterToRead
-
-        if (chapterData) {
-            chapterToRead = chapterData
-        } else if (comicDetail?.chapters && comicDetail.chapters.length > 0) {
-            chapterToRead = comicDetail.chapters[0]
-        } else {
+        let chapterToRead = chapterData || (comicDetail?.chapters?.[0])
+        
+        if (!chapterToRead) {
             alert('No chapters available')
             return
         }
@@ -131,40 +116,22 @@ const DetailComic = () => {
                 chapterLink: chapterToRead.link,
                 comicTitle: comic?.title || comicDetail?.title,
                 chapterNumber: chapterToRead.chapter,
-                comicDetailState: { 
-                    comic: comic || { 
-                        title: comicDetail?.title,
-                        image: comicDetail?.image || comicDetail?.thumbnail 
-                    }, 
-                    processedLink: processedLink || slug 
-                },
+                comicDetailState: { comic: comic || { title: comicDetail?.title, image: comicDetail?.image || comicDetail?.thumbnail }, processedLink: processedLink || slug },
             }
         })
     }
 
     const handleContinueReading = () => {
         if (history) {
-            const chapterData = {
-                link: history.lastChapterLink,
-                chapter: history.lastChapter,
-            }
-            handleReadComic(chapterData)
+            handleReadComic({ link: history.lastChapterLink, chapter: history.lastChapter })
         }
     }
 
     const handleRecommendationDetail = (item) => {
         window.scrollTo(0, 0)
-        
         navigate(`/detail-comic/${item.slug}`, {
             state: {
-                comic: {
-                    title: item.title,
-                    image: item.image,
-                    chapter: item.chapter,
-                    source: item.source,
-                    link: item.link,
-                    popularity: item.popularity
-                },
+                comic: { title: item.title, image: item.image, chapter: item.chapter, source: item.source, link: item.link, popularity: item.popularity },
                 processedLink: item.processedLink
             }
         })
@@ -181,26 +148,9 @@ const DetailComic = () => {
 
     if (loading) {
         return (
-            <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen transition-colors">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="animate-pulse mb-6">
-                        <div className="h-96 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-2xl relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2 space-y-6">
-                            <div className="animate-pulse h-48 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-2xl"></div>
-                            <div className="grid grid-cols-6 gap-3">
-                                {Array.from({ length: 18 }).map((_, i) => (
-                                    <div key={i} className="animate-pulse h-12 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-xl"></div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="space-y-4">
-                            <SkeletonLoader count={3} type="card" />
-                        </div>
-                    </div>
+            <div className="bg-white dark:bg-gray-950 min-h-screen py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <SkeletonLoader count={8} type="card" />
                 </div>
             </div>
         )
@@ -208,21 +158,18 @@ const DetailComic = () => {
 
     if (error) {
         return (
-            <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen transition-colors">
-                <div className="flex justify-center items-center min-h-screen p-4">
-                    <div className="bg-red-500/10 border border-red-500/50 rounded-2xl p-8 text-center backdrop-blur-sm max-w-md">
-                        <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white dark:bg-gray-950 min-h-screen flex items-center justify-center p-4">
+                <div className="border-2 border-gray-800 dark:border-gray-700 bg-white dark:bg-gray-900 p-8 text-center max-w-md">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 mx-auto mb-4 flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <h2 className="text-xl font-bold text-red-400 mb-2">Terjadi Kesalahan</h2>
-                        <p className="text-red-300 mb-4">{error}</p>
-                        <button
-                            onClick={() => navigate('/')}
-                            className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all"
-                        >
-                            Kembali ke Home
-                        </button>
                     </div>
+                    <h2 className="text-sm font-bold uppercase tracking-wide text-gray-800 dark:text-gray-200 mb-2">Terjadi Kesalahan</h2>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-4">{error}</p>
+                    <button onClick={() => navigate('/')} className="bg-gray-800 dark:bg-gray-700 text-white px-6 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-900 dark:hover:bg-gray-600 transition-all">
+                        Kembali ke Home
+                    </button>
                 </div>
             </div>
         )
@@ -230,206 +177,149 @@ const DetailComic = () => {
 
     if (!comic && !comicDetail) {
         return (
-            <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen transition-colors">
-                <div className="flex justify-center items-center min-h-screen p-4">
-                    <div className="text-center">
-                        <p className="text-gray-600 dark:text-gray-400 text-xl mb-4">Komik tidak ditemukan</p>
-                        <button
-                            onClick={() => navigate('/')}
-                            className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all"
-                        >
-                            Kembali ke Home
-                        </button>
-                    </div>
+            <div className="bg-white dark:bg-gray-950 min-h-screen flex items-center justify-center p-4">
+                <div className="text-center">
+                    <p className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">Komik tidak ditemukan</p>
+                    <button onClick={() => navigate('/')} className="bg-gray-800 text-white px-6 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-900 transition-all">
+                        Kembali ke Home
+                    </button>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors py-8">
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
-            </div>
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row gap-6">
+        <div className="bg-white dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Main Content */}
                     <div className="lg:w-2/3 space-y-6">
-                        {/* Hero Banner */}
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                            <div className="absolute inset-0">
-                                <img
-                                    src={displayComic.image}
-                                    alt={displayComic.title}
-                                    width="1200"
-                                    height="500"
-                                    loading="eager"
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.target.src = 'https://via.placeholder.com/1200x500?text=No+Image'
-                                    }}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30"></div>
-                                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-                            </div>
+                        {/* Hero Banner - Industrial Style */}
+                        <div className="relative border-2 border-gray-800 dark:border-gray-700 overflow-hidden">
+                            {/* Corner Dots */}
+                            <div className="absolute w-1.5 h-1.5 bg-gray-800 dark:bg-gray-700 -top-0.5 -left-0.5 z-20"></div>
+                            <div className="absolute w-1.5 h-1.5 bg-gray-800 dark:bg-gray-700 -top-0.5 -right-0.5 z-20"></div>
+                            <div className="absolute w-1.5 h-1.5 bg-gray-800 dark:bg-gray-700 -bottom-0.5 -left-0.5 z-20"></div>
+                            <div className="absolute w-1.5 h-1.5 bg-gray-800 dark:bg-gray-700 -bottom-0.5 -right-0.5 z-20"></div>
 
-                            <div className="relative z-10 p-8 md:p-12 min-h-[500px] flex flex-col justify-end">
-                                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 text-white drop-shadow-2xl">
-                                    {displayComic.title}
-                                </h1>
-
-                                <div className="flex flex-wrap gap-3 mb-6">
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30">
-                                        <FontAwesomeIcon icon={faBookOpen} className="text-white" />
-                                        <span className="text-sm font-semibold text-white">{displayComic.chapter}</span>
-                                    </div>
-                                    {displayComic.source && (
-                                        <div className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30">
-                                            <FontAwesomeIcon icon={faStar} className="text-white" />
-                                            <span className="text-sm font-semibold text-white">{displayComic.source}</span>
+                            <div className="relative h-96">
+                                <img src={displayComic.image} alt={displayComic.title} className="w-full h-full object-cover" onError={(e) => e.target.src = 'https://via.placeholder.com/1200x500?text=No+Image'} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
+                                
+                                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                                    <h1 className="text-2xl md:text-3xl font-bold mb-4 text-white uppercase tracking-tight">{displayComic.title}</h1>
+                                    
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        <div className="bg-gray-800/80 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider border border-white/20">
+                                            <FontAwesomeIcon icon={faBookOpen} className="mr-1" />
+                                            {displayComic.chapter}
                                         </div>
-                                    )}
-                                </div>
+                                        {displayComic.source && (
+                                            <div className="bg-gray-800/80 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider border border-white/20">
+                                                <FontAwesomeIcon icon={faStar} className="mr-1" />
+                                                {displayComic.source}
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <div className="flex flex-wrap gap-3">
-                                    <button
-                                        onClick={() => handleReadComic()}
-                                        className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-500 hover:to-emerald-500 transition-all shadow-2xl hover:shadow-green-500/50 hover:scale-105"
-                                    >
-                                        <FontAwesomeIcon icon={faPlay} className="text-lg" />
-                                        Baca Dari Awal
-                                    </button>
-
-                                    <button
-                                        onClick={() => navigate('/')}
-                                        className="flex items-center gap-2 px-8 py-4 bg-white/20 backdrop-blur-md text-white rounded-xl font-bold hover:bg-white/30 transition-all border border-white/30 hover:scale-105"
-                                    >
-                                        <FontAwesomeIcon icon={faHome} />
-                                        Home
-                                    </button>
+                                    <div className="flex flex-wrap gap-3">
+                                        <button onClick={() => handleReadComic()} className="bg-gray-800 text-white px-6 py-3 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-900 transition-all flex items-center gap-2">
+                                            <FontAwesomeIcon icon={faPlay} />
+                                            Baca Dari Awal
+                                        </button>
+                                        <button onClick={() => navigate('/')} className="border-2 border-white text-white px-6 py-3 text-[11px] font-bold uppercase tracking-widest hover:bg-white hover:text-gray-900 transition-all flex items-center gap-2">
+                                            <FontAwesomeIcon icon={faHome} />
+                                            Home
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Synopsis */}
-                        <div className="relative bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl p-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
-                                <h3 className="text-2xl font-bold">Synopsis</h3>
-                            </div>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <div className="border-2 border-gray-800 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
+                            <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-gray-100 mb-3 pb-3 border-b border-gray-200 dark:border-gray-800">Synopsis</h3>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
                                 {comicDetail?.synopsis || "Synopsis tidak tersedia."}
                             </p>
                         </div>
 
                         {/* Continue Reading */}
                         {history && !isLatestChapter && (
-                            <div className="relative overflow-hidden bg-gradient-to-r from-yellow-600/20 to-orange-600/20 dark:from-yellow-600/10 dark:to-orange-600/10 backdrop-blur-sm rounded-2xl border border-yellow-500/30 shadow-lg p-6">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl"></div>
-                                <div className="relative">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <FontAwesomeIcon icon={faClock} className="text-yellow-600 dark:text-yellow-400 text-xl" />
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                                            Lanjutkan Membaca
-                                        </h3>
-                                    </div>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-                                        Chapter Terakhir Dibaca: <span className="font-bold text-yellow-600 dark:text-yellow-400">Chapter {history.lastChapter}</span>
-                                    </p>
-                                    <button
-                                        onClick={handleContinueReading}
-                                        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-yellow-600 to-orange-600 text-white rounded-xl font-semibold hover:from-yellow-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-yellow-500/50"
-                                    >
-                                        <FontAwesomeIcon icon={faPlay} />
-                                        Lanjutkan Chapter {history.lastChapter}
-                                    </button>
+                            <div className="border-2 border-gray-800 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <FontAwesomeIcon icon={faClock} className="text-gray-600 dark:text-gray-400" />
+                                    <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white">Lanjutkan Membaca</h3>
                                 </div>
+                                <p className="text-[11px] text-gray-600 dark:text-gray-400 mb-4">
+                                    Chapter Terakhir: <span className="font-bold text-gray-900 dark:text-white">Chapter {history.lastChapter}</span>
+                                </p>
+                                <button onClick={handleContinueReading} className="bg-gray-800 text-white px-6 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-900 transition-all flex items-center gap-2">
+                                    <FontAwesomeIcon icon={faPlay} />
+                                    Lanjutkan Chapter {history.lastChapter}
+                                </button>
                             </div>
                         )}
 
                         {/* Chapter List */}
-                        <div className="relative bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl p-6">
-                            <div className="flex items-center gap-2 mb-6">
-                                <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
-                                <h3 className="text-2xl font-bold">Daftar Chapter</h3>
-                            </div>
+                        <div className="border-2 border-gray-800 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
+                            <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-gray-100 mb-4 pb-4 border-b border-gray-200 dark:border-gray-800">Daftar Chapter</h3>
                             {comicDetail?.chapters && comicDetail.chapters.length > 0 ? (
-                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
                                     {comicDetail.chapters.map((chapter, index) => (
                                         <button
                                             key={index}
                                             onClick={() => handleReadComic(chapter)}
-                                            className={`group relative p-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 ${
+                                            className={`p-2 text-center text-[11px] font-bold uppercase tracking-wider transition-all ${
                                                 String(chapter.chapter) === String(history?.lastChapter)
-                                                    ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg shadow-yellow-500/30 scale-105'
-                                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 hover:scale-105 shadow-lg hover:shadow-indigo-500/30'
+                                                    ? 'bg-gray-800 text-white border-2 border-gray-900 dark:border-gray-600'
+                                                    : 'border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-800 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
                                             }`}
                                         >
-                                            {String(chapter.chapter) === String(history?.lastChapter) && (
-                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                                            )}
                                             {chapter.chapter}
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-gray-600 dark:text-gray-400 text-center py-8">
-                                    Belum ada chapter tersedia
-                                </p>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center py-4">Belum ada chapter tersedia</p>
                             )}
                         </div>
                     </div>
 
-                    {/* Recommendations */}
+                    {/* Sidebar - Recommendations */}
                     {recommendations.length > 0 && (
                         <div className="lg:w-1/3">
-                            <div className="sticky top-20">
-                                <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl p-6">
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <FontAwesomeIcon icon={faFire} className="text-orange-600 dark:text-orange-400 text-xl" />
-                                        <h2 className="text-2xl font-bold">Rekomendasi</h2>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {recommendations.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className="group relative bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 hover:-translate-y-1 border border-gray-200 dark:border-gray-700"
-                                                onClick={() => handleRecommendationDetail(item)}
-                                            >
-                                                <div className="flex gap-3">
-                                                    <div className="relative w-24 h-32 flex-shrink-0">
-                                                        <img
-                                                            src={item.image}
-                                                            alt={item.title}
-                                                            width="96"
-                                                            height="128"
-                                                            loading="lazy"
-                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                            onError={(e) => {
-                                                                e.target.src = 'https://via.placeholder.com/300x450?text=Rekomendasi'
-                                                            }}
-                                                        />
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                                    </div>
-                                                    <div className="flex-1 p-3 min-w-0">
-                                                        <h3 className="font-bold text-sm line-clamp-2 text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-2">
-                                                            {item.title}
-                                                        </h3>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            <span className="text-xs px-2 py-1 bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 rounded-full font-semibold">
-                                                                Ch {item.chapter.split(' ').pop()}
-                                                            </span>
-                                                            <span className="text-xs px-2 py-1 bg-yellow-600/20 text-yellow-600 dark:text-yellow-400 rounded-full font-semibold flex items-center gap-1">
-                                                                <FontAwesomeIcon icon={faStar} className="text-[10px]" />
-                                                                {item.popularity}
-                                                            </span>
-                                                        </div>
+                            <div className="sticky top-20 border-2 border-gray-800 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
+                                <h2 className="text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-gray-100 mb-4 pb-4 border-b border-gray-200 dark:border-gray-800">Rekomendasi</h2>
+                                <div className="space-y-3">
+                                    {recommendations.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="group border border-gray-300 dark:border-gray-700 hover:border-gray-800 dark:hover:border-gray-600 cursor-pointer transition-all overflow-hidden"
+                                            onClick={() => handleRecommendationDetail(item)}
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className="w-20 h-28 flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+                                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={(e) => e.target.src = 'https://via.placeholder.com/80x112?text=Rec'} />
+                                                </div>
+                                                <div className="flex-1 p-2 min-w-0">
+                                                    <h3 className="font-bold text-[11px] uppercase tracking-wide line-clamp-2 text-gray-900 dark:text-gray-100 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors mb-2 leading-tight">
+                                                        {item.title}
+                                                    </h3>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        <span className="text-[9px] px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold uppercase border border-gray-200 dark:border-gray-700">
+                                                            Ch {item.chapter.split(' ').pop()}
+                                                        </span>
+                                                        <span className="text-[9px] px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold uppercase border border-gray-200 dark:border-gray-700">
+                                                            ★ {item.popularity}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                            {/* Bottom accent line */}
+                                            <div className="h-0.5 bg-gray-800 dark:bg-gray-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
