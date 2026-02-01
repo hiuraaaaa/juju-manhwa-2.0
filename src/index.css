@@ -4,25 +4,29 @@
 
 @layer base {
   :root {
-    /* Light theme colors */
-    --bg-primary: 255, 255, 255;
-    --bg-secondary: 249, 250, 251;
-    --bg-tertiary: 243, 244, 246;
-    --text-primary: 17, 24, 39;
-    --text-secondary: 75, 85, 99;
-    --text-tertiary: 156, 163, 175;
-    --border-color: 229, 231, 235;
+    /* Industrial Light theme colors - Gray-based palette */
+    --bg-primary: 255, 255, 255;           /* White */
+    --bg-secondary: 249, 250, 251;         /* Gray-50 */
+    --bg-tertiary: 243, 244, 246;          /* Gray-100 */
+    --bg-accent: 31, 41, 55;               /* Gray-800 */
+    --text-primary: 17, 24, 39;            /* Gray-900 */
+    --text-secondary: 75, 85, 99;          /* Gray-600 */
+    --text-tertiary: 156, 163, 175;        /* Gray-400 */
+    --border-color: 31, 41, 55;            /* Gray-800 - Industrial borders */
+    --border-light: 209, 213, 219;         /* Gray-300 */
   }
 
   [data-theme="dark"] {
-    /* Dark theme colors */
-    --bg-primary: 10, 10, 10;
-    --bg-secondary: 18, 18, 18;
-    --bg-tertiary: 30, 30, 30;
-    --text-primary: 243, 244, 246;
-    --text-secondary: 209, 213, 219;
-    --text-tertiary: 156, 163, 175;
-    --border-color: 55, 65, 81;
+    /* Industrial Dark theme colors - Deep grays */
+    --bg-primary: 3, 7, 18;                /* Gray-950 */
+    --bg-secondary: 17, 24, 39;            /* Gray-900 */
+    --bg-tertiary: 31, 41, 55;             /* Gray-800 */
+    --bg-accent: 55, 65, 81;               /* Gray-700 */
+    --text-primary: 249, 250, 251;         /* Gray-50 */
+    --text-secondary: 209, 213, 219;       /* Gray-300 */
+    --text-tertiary: 156, 163, 175;        /* Gray-400 */
+    --border-color: 55, 65, 81;            /* Gray-700 */
+    --border-light: 75, 85, 99;            /* Gray-600 */
   }
 
   html {
@@ -33,9 +37,23 @@
     @apply antialiased;
     background-color: rgb(var(--bg-primary));
     color: rgb(var(--text-primary));
+    font-feature-settings: "kern" 1, "liga" 1;
   }
 
-  /* Optimize font loading with font-display swap */
+  /* Industrial Typography - Uppercase & Tracking */
+  .industrial-heading {
+    @apply uppercase tracking-tight font-bold;
+  }
+
+  .industrial-label {
+    @apply uppercase tracking-wider font-bold text-[11px];
+  }
+
+  .industrial-caption {
+    @apply uppercase tracking-widest font-bold text-[9px];
+  }
+
+  /* Optimize font loading */
   @font-face {
     font-family: 'Playpen Sans';
     font-display: swap;
@@ -51,7 +69,7 @@
     contain: layout style paint;
   }
 
-  /* Aspect ratio containers to prevent layout shift */
+  /* Aspect ratio containers */
   .aspect-comic-cover {
     aspect-ratio: 2 / 3;
     position: relative;
@@ -65,9 +83,97 @@
     height: 100%;
     object-fit: cover;
   }
+
+  /* Industrial Borders - No rounded */
+  .industrial-border {
+    border-width: 2px;
+    border-color: rgb(var(--border-color));
+  }
+
+  .industrial-border-light {
+    border-width: 1px;
+    border-color: rgb(var(--border-light));
+  }
+
+  /* Corner Dots (Lumina style) */
+  .corner-dots::before,
+  .corner-dots::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: rgb(var(--border-color));
+    border-radius: 0;
+  }
+
+  .corner-dots::before {
+    top: -3px;
+    left: -3px;
+  }
+
+  .corner-dots::after {
+    top: -3px;
+    right: -3px;
+  }
+
+  /* Prevent body scroll when menu open */
+  body.noscroll {
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* Industrial Button Styles */
+  .btn-industrial {
+    @apply px-6 py-3 bg-gray-800 dark:bg-gray-700 text-white font-bold text-[11px] uppercase tracking-widest transition-all;
+    @apply hover:bg-gray-900 dark:hover:bg-gray-600;
+    border: none;
+    border-radius: 0;
+  }
+
+  .btn-industrial-outline {
+    @apply px-6 py-3 border-2 border-gray-800 dark:border-gray-700 text-gray-800 dark:text-gray-300 font-bold text-[11px] uppercase tracking-widest transition-all;
+    @apply hover:bg-gray-800 dark:hover:bg-gray-700 hover:text-white;
+    border-radius: 0;
+  }
+
+  /* Industrial Card */
+  .card-industrial {
+    @apply border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 transition-all;
+    @apply hover:border-gray-800 dark:hover:border-gray-600;
+    border-radius: 0;
+  }
+
+  /* Industrial Banner (like Lumina) */
+  .industrial-banner {
+    @apply relative border-2 border-gray-800 dark:border-gray-700 bg-white dark:bg-gray-900 p-8 md:p-10;
+    position: relative;
+    border-radius: 0;
+  }
+
+  /* Corner Dots for Banners */
+  .industrial-banner .dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: rgb(var(--border-color));
+    border-radius: 0;
+  }
+
+  /* Icon Box (Lumina style) */
+  .icon-box {
+    @apply w-8 h-8 bg-gray-800 dark:bg-gray-700 flex items-center justify-center;
+    border-radius: 0;
+  }
+
+  .icon-box-sm {
+    @apply w-6 h-6 bg-gray-800 dark:bg-gray-700 flex items-center justify-center;
+    border-radius: 0;
+  }
 }
 
 @layer utilities {
+  /* Line clamp utilities */
   .line-clamp-1 {
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -89,14 +195,13 @@
     overflow: hidden;
   }
 
-  /* Performance optimizations - GPU acceleration */
+  /* Performance optimizations */
   .gpu-accelerate {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
   }
 
-  /* Will-change for hover animations */
   .will-change-transform {
     will-change: transform;
   }
@@ -105,30 +210,66 @@
     will-change: opacity;
   }
 
-  /* Content visibility for better rendering performance */
   .content-auto {
     content-visibility: auto;
     contain-intrinsic-size: auto 500px;
   }
 
-  /* Optimize animations with composite layers */
   .smooth-transform {
     transform: translateZ(0);
     will-change: transform;
   }
 
-  /* Remove will-change after animation */
   .smooth-transform:not(:hover):not(:focus) {
     will-change: auto;
   }
 
-  /* Optimize scrolling performance */
   .scroll-optimize {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
 
-  /* Skeleton loader shimmer animation */
+  /* Industrial-specific utilities */
+  .border-industrial {
+    border-width: 2px;
+    border-color: rgb(var(--border-color));
+    border-radius: 0;
+  }
+
+  .border-industrial-light {
+    border-width: 1px;
+    border-color: rgb(var(--border-light));
+    border-radius: 0;
+  }
+
+  /* No rounded corners */
+  .no-rounded {
+    border-radius: 0 !important;
+  }
+
+  /* Uppercase utilities */
+  .text-industrial-xs {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+
+  .text-industrial-sm {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  .text-industrial-md {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  /* Shimmer animation for skeleton loaders */
   @keyframes shimmer {
     0% {
       transform: translateX(-100%);
@@ -141,4 +282,75 @@
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
+
+  /* Fade in up animation (for cards) */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.4s ease-out forwards;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  }
+}
+
+/* Custom Scrollbar - Industrial Style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--bg-secondary));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border-color));
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--text-secondary));
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--border-color)) rgb(var(--bg-secondary));
+}
+
+/* Selection color - Industrial */
+::selection {
+  background-color: rgb(var(--border-color));
+  color: rgb(var(--bg-primary));
+}
+
+::-moz-selection {
+  background-color: rgb(var(--border-color));
+  color: rgb(var(--bg-primary));
 }
