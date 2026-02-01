@@ -20,10 +20,10 @@ const Home = () => {
       <div className="bg-white dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300">
         
         {/* Hero Section - Industrial Banner Style */}
-        <div className="pt-10 pb-6 px-4 md:pt-16 md:pb-8">
+        <div className="pt-6 pb-4 px-4 md:pt-10 md:pb-6">
           <div className="max-w-7xl mx-auto">
             {/* Industrial Banner */}
-            <div className="relative bg-white dark:bg-gray-900 border-2 border-gray-800 dark:border-gray-700 p-10 md:p-16 mb-10">
+            <div className="relative bg-white dark:bg-gray-900 border-2 border-gray-800 dark:border-gray-700 p-6 md:p-8 mb-6">
               {/* Corner Dots */}
               <div className="absolute w-1.5 h-1.5 bg-gray-800 dark:bg-gray-700 -top-0.5 -left-0.5"></div>
               <div className="absolute w-1.5 h-1.5 bg-gray-800 dark:bg-gray-700 -top-0.5 -right-0.5"></div>
@@ -74,9 +74,9 @@ const Home = () => {
         </div>
 
         {/* Terbaru Section */}
-        <div className="py-10 px-4">
+        <div className="py-6 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-8 md:mb-10">
+            <div className="mb-6 md:mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b-2 border-gray-800 dark:border-gray-700">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50 uppercase tracking-tight">
@@ -100,9 +100,9 @@ const Home = () => {
         </div>
 
         {/* Trending Section */}
-        <div className="py-10 px-4">
+        <div className="py-6 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-8 md:mb-10">
+            <div className="mb-6 md:mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b-2 border-gray-800 dark:border-gray-700">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50 uppercase tracking-tight">
@@ -126,7 +126,7 @@ const Home = () => {
         </div>
 
         {/* Pustaka CTA - Industrial Style */}
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-10 md:py-14">
           <div className="grid md:grid-cols-2 gap-4">
             {/* Main CTA */}
             <div className="border-2 border-gray-800 dark:border-gray-700 p-6 md:p-8 bg-white dark:bg-gray-900 relative hover:border-gray-900 dark:hover:border-gray-600 transition-all group">
@@ -178,7 +178,7 @@ const Home = () => {
         </div>
 
         {/* Footer - Industrial Style */}
-        <footer className="mt-16 pb-12 px-4">
+        <footer className="mt-10 pb-8 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="border-t-2 border-gray-800 dark:border-gray-700 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
